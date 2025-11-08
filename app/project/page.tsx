@@ -50,7 +50,7 @@ const ManageProject = () => {
     if (res.ok) {
       setMessage('✅ Project added successfully!');
       setFormData({ title: '', description: '', img: '' });
-      fetchProjects();
+      window.location.href = '/project';
     } else {
       const errorData = await res.json();
       setMessage(`❌ Error: ${errorData.error}`);
@@ -70,7 +70,7 @@ const ManageProject = () => {
       setMessage('✅ Project updated!');
       setEditMode(false);
       setEditProject(null);
-      fetchProjects();
+      window.location.href = '/project';
     } else {
       const errorData = await res.json();
       setMessage(`❌ Error: ${errorData.error}`);
@@ -87,7 +87,7 @@ const ManageProject = () => {
       const res = await fetch(`/api/project/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setMessage('🗑️ Deleted!');
-        fetchProjects();
+        window.location.href = '/project';
       }
     }
   };

@@ -18,12 +18,12 @@ export async function OPTIONS() {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { author, title, description, img, archive } = body;
+    const { author, title, description, img } = body;
 
     console.log("body are: ", body);
 
     const product = await prisma.blog.create({
-      data: { author, title, description, img, archive },
+      data: { author, title, description, img },
     });
 
     return new Response(JSON.stringify({ message: 'Product created successfully', product }), {

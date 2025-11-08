@@ -13,7 +13,7 @@ const ManageProject = () => {
     author: '', 
     description: '',
     img: '', 
-    archive: 'no',
+    
   });
 
   const [editFormData, setEditFormData] = useState({
@@ -22,7 +22,7 @@ const ManageProject = () => {
     author: '', 
     description: '',
     img: '', 
-    archive: 'no',
+    
   });
 
   const [message, setMessage] = useState('');
@@ -62,7 +62,7 @@ const ManageProject = () => {
         author: '', 
         description: '',
         img: '', 
-        archive: 'no',
+        
       });
       window.location.href = '/blog';
     } else {
@@ -94,7 +94,7 @@ const ManageProject = () => {
           author: '', 
           description: '',
           img: '', 
-          archive: 'no',
+          
         });
         window.location.href = '/blog';
       } else {
@@ -170,17 +170,7 @@ const ManageProject = () => {
           
         </div>
 
-                        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={currentForm.archive === 'yes'}
-            onChange={(e) => updateField('archive', e.target.checked ? 'yes' : 'no')}
-            id="archive"
-            className="w-4 h-4"
-          />
-          <label htmlFor="archive" className="cursor-pointer">Archive</label>
-        </div>
- 
+
 
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
           {editMode ? 'Update Blog' : 'Add Blog'}
