@@ -60,7 +60,7 @@ const ManageProject = () => {
   // Update existing project
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`/api/project/${editProject._id}`, {
+    const res = await fetch(`/api/project/${editProject.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editProject), // ✅ only title, description, img will exist
@@ -164,7 +164,7 @@ const ManageProject = () => {
                   <button onClick={() => handleEdit(p)} className="bg-yellow-500 text-white px-3 py-1 mr-2 rounded">
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(p._id)} className="bg-red-500 text-white px-3 py-1 rounded">
+                  <button onClick={() => handleDelete(p.id)} className="bg-red-500 text-white px-3 py-1 rounded">
                     Delete
                   </button>
                 </td>
