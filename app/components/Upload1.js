@@ -23,7 +23,7 @@ const Upload = ({ onFilesUpload }) => {
       const isVideo = file.type.startsWith("video/");
       if (!isVideo) continue; // Skip non-video files
 
-      const uploadUrl = "https://api.cloudinary.com/v1_1/duln5xyix/video/upload";
+      const uploadUrl = "https://api.cloudinary.com/v1_1/dn23oe6gg/video/upload";
 
       try {
         const res = await fetch(uploadUrl, {

@@ -35,16 +35,7 @@ export default function Sidebar() {
                 Services
               </a>
             </li> 
-            <li>
-              <a href="/review" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
-                Reviews
-              </a>
-            </li>
-            <li>
-              <a href="/count" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
-                Counter
-              </a>
-            </li>
+ 
             <li>
               <a href="/blog" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 Blogs

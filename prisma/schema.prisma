@@ -11,10 +11,7 @@ model Project {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String  
   description String
-  img         String[]
-  img1         String[]
-  video       String[]
-  archive     String?  @default("no")
+  img         String[]  
 }
  
 
@@ -24,18 +21,12 @@ model Blog {
   title       String
   description String 
   img         String[]
-  date        DateTime @default(now()) @db.Date
-  archive     String?  @default("no")
+  date        DateTime @default(now()) @db.Date 
 }
 
   
  
-model Review {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String 
-  description String  
-  stars String   
-}
+ 
 
 
 model Order {
@@ -45,25 +36,9 @@ model Order {
   phone String 
   location String 
   subject String 
-  message String 
-  cat String 
+  message String  
   date        String?
 }
  
 
-
-
- model Counter {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String  
-  num String
-  img         String[]  
-}
-
-
-
- model Category {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String   
-  img         String[]  
-}
+ 

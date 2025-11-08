@@ -46,7 +46,7 @@ export default function Home() {
       {/* Logo Section */}
       <div className="flex justify-center mb-6">
         <img
-          src="https://res.cloudinary.com/duln5xyix/image/upload/v1760189999/white_tq7ghw.webp"
+          src="https://res.cloudinary.com/dn23oe6gg/image/upload/v1762023367/897bba68-1092-4b61-bca9-a5bf4dea9633-removebg-preview_1_aqlphi.png"
           className="w-40 sm:w-48"
           alt="Sample image"
         />
