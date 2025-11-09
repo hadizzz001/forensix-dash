@@ -1,4 +1,4 @@
-'use client';
+'use client'; 
 import ExportButton from "../components/ExportExcel";
 import { useState, useEffect } from "react";
 
@@ -7,18 +7,18 @@ const Page = () => {
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
   const [filterClientName, setFilterClientName] = useState("");
 
-  // Fetch API data
+  // Fetch API data from /api/work
   useEffect(() => {
-    const fetchOrders = async () => {
-      const response = await fetch('/api/order');
+    const fetchWorks = async () => {
+      const response = await fetch('/api/work');
       if (response.ok) {
         const data = await response.json();
         setTemp(data);
       } else {
-        console.error('Failed to fetch orders');
+        console.error('Failed to fetch works');
       }
     };
-    fetchOrders();
+    fetchWorks();
   }, []);
 
   // Toggle row expansion
@@ -26,23 +26,23 @@ const Page = () => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Delete order
-  const handleDeleteOrder = async (id: string) => {
+  // Delete work entry
+  const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/order/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/work/${id}`, { method: "DELETE" });
       if (response.ok) {
-        setTemp(allTemp.filter((order) => order.id !== id));
+        setTemp(allTemp.filter((item) => item.id !== id));
       } else {
-        console.error("Failed to delete order");
+        console.error("Failed to delete work entry");
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Filtered data (only by client name)
+  // Filtered data by fullName
   const filteredData = allTemp.filter((post) =>
-    filterClientName === "" || post.name.toLowerCase().includes(filterClientName.toLowerCase())
+    filterClientName === "" || post.data.fullName.toLowerCase().includes(filterClientName.toLowerCase())
   );
 
   return (
@@ -53,7 +53,7 @@ const Page = () => {
           type="text"
           value={filterClientName}
           onChange={(e) => setFilterClientName(e.target.value)}
-          placeholder="Filter by Client Name"
+          placeholder="Filter by Name"
           className="border p-1 text-xs"
         />
         <ExportButton allTemp={allTemp} className="text-xs p-1" />
@@ -63,8 +63,8 @@ const Page = () => {
         <thead>
           <tr>
             <th>Name</th>
-            <th>Category</th>
-            <th>Date</th>
+            <th>Email</th>
+            <th>Docs</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -73,37 +73,34 @@ const Page = () => {
             filteredData.map((post) => (
               <>
                 <tr key={post.id}>
-                  <td>{post.name}</td>
-                  <td>{post.cat}</td>
-                  <td>{post.date}</td>
+                  <td>{post.data.fullName}</td>
+                  <td>{post.data.email}</td>
+                  <td>
+                    {post.data.cvUrl ? (
+                      <a
+                        href={post.data.cvUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="myGray  underline text-xs"
+                         
+                      >
+                        View Docs
+                      </a>
+                    ) : (
+                      "N/A"
+                    )}
+                  </td>
                   <td className="flex items-center space-x-2">
                     <button
-                      onClick={() => handleDeleteOrder(post.id)}
+                      onClick={() => handleDelete(post.id)}
                       className="bg-red-500 text-white p-1 text-xs"
                     >
                       Delete
-                    </button>
-                    <button
-                      onClick={() => toggleRow(post.id)}
-                      className="text-xs p-1 border rounded"
-                    >
-                      {expandedRows[post.id] ? "▲" : "▼"}
-                    </button>
+                    </button> 
                   </td>
                 </tr>
 
-                {/* Expanded row */}
-                {expandedRows[post.id] && (
-                  <tr className="bg-gray-100">
-                    <td colSpan={4} className="text-xs p-2">
-                      <div><strong>Email:</strong> {post.email}</div>
-                      <div><strong>Phone:</strong> {post.phone}</div>
-                      <div><strong>Location:</strong> {post.location}</div>
-                      <div><strong>Subject:</strong> {post.subject}</div>
-                      <div><strong>Message:</strong> {post.message}</div>
-                    </td>
-                  </tr>
-                )}
+          
               </>
             ))
           ) : (
