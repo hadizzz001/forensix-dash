@@ -55,8 +55,7 @@ const Page = () => {
           onChange={(e) => setFilterClientName(e.target.value)}
           placeholder="Filter by Name"
           className="border p-1 text-xs"
-        />
-        <ExportButton allTemp={allTemp} className="text-xs p-1" />
+        /> 
       </div>
 
       <table className="table table-striped container text-sm">
@@ -64,6 +63,7 @@ const Page = () => {
           <tr>
             <th>Name</th>
             <th>Email</th>
+            <th>Date</th>
             <th>Docs</th>
             <th>Action</th>
           </tr>
@@ -75,6 +75,7 @@ const Page = () => {
                 <tr key={post.id}>
                   <td>{post.data.fullName}</td>
                   <td>{post.data.email}</td>
+                  <td>{post.data.date}</td>
                   <td>
                     {post.data.cvUrl ? (
                       <a
