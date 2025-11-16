@@ -68,6 +68,11 @@ export default function Sidebar() {
             </li>
             <li>
               <a href="/reservation" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Documents received
+              </a>
+            </li>
+            <li>
+              <a href="/reservation1" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 Reservations
               </a>
             </li>

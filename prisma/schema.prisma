@@ -48,6 +48,7 @@ model Order {
   subject String 
   message String  
   date        String?
+  time        String?
 }
  
 
