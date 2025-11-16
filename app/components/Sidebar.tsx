@@ -72,6 +72,11 @@ export default function Sidebar() {
               </a>
             </li>
             <li>
+              <a href="/calendar" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Reservations Dates
+              </a>
+            </li>
+            <li>
               <a href="/" style={{ color: "white", textDecoration: "none" }}>
                 Logout
               </a>

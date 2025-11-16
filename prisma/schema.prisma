@@ -94,3 +94,16 @@ model Work {
   description String  
   data Json
 }
+
+
+model AvailableDate {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  date      DateTime
+  createdAt DateTime @default(now())
+}
+
+
+model Appointment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  info       Json  
+}
