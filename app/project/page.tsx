@@ -7,7 +7,7 @@ import 'react-quill/dist/quill.snow.css';
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
-const ManageProject = () => {
+export default function ManageProject() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -19,18 +19,23 @@ const ManageProject = () => {
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState('');
 
+  // -------- SUB SECTION STATE --------
+  const [showSectionModal, setShowSectionModal] = useState(false);
+  const [currentProjectId, setCurrentProjectId] = useState('');
+  const [sectionData, setSectionData] = useState({
+    title: '',
+    description: '',
+    img: '',
+  });
+
   // Fetch All Projects
   const fetchProjects = async () => {
     try {
       const res = await fetch('/api/project');
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data);
-      } else {
-        console.error('Failed to fetch projects');
-      }
-    } catch (error) {
-      console.error('Error fetching projects:', error);
+      const data = await res.json();
+      setProjects(data);
+    } catch (err) {
+      console.error('Fetch error:', err);
     }
   };
 
@@ -44,52 +49,44 @@ const ManageProject = () => {
     const res = await fetch('/api/project', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),   // ✅ only title, description, img
+      body: JSON.stringify(formData),
     });
 
     if (res.ok) {
-      setMessage('✅ Project added successfully!');
+      setMessage('✅ Project added!');
       setFormData({ title: '', description: '', img: '' });
-      window.location.href = '/project';
+      fetchProjects();
     } else {
-      const errorData = await res.json();
-      setMessage(`❌ Error: ${errorData.error}`);
+      setMessage('❌ Error creating project');
     }
   };
 
-  // Update existing project
+  // Update project
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
     const res = await fetch(`/api/project/${editProject.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(editProject), // ✅ only title, description, img will exist
+      body: JSON.stringify(editProject),
     });
 
     if (res.ok) {
       setMessage('✅ Project updated!');
       setEditMode(false);
       setEditProject(null);
-      window.location.href = '/project';
+      fetchProjects();
     } else {
-      const errorData = await res.json();
-      setMessage(`❌ Error: ${errorData.error}`);
+      setMessage('❌ Error updating project');
     }
   };
 
-  const handleEdit = (project) => {
-    setEditMode(true);
-    setEditProject({ ...project });
-  };
-
+  // Delete project
   const handleDelete = async (id) => {
-    if (confirm('Delete this item?')) {
-      const res = await fetch(`/api/project/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        setMessage('🗑️ Deleted!');
-        window.location.href = '/project';
-      }
-    }
+    if (!confirm('Delete this project?')) return;
+
+    await fetch(`/api/project/${id}`, { method: 'DELETE' });
+    fetchProjects();
   };
 
   const updateField = (field, value) => {
@@ -102,19 +99,49 @@ const ManageProject = () => {
 
   const currentForm = editMode ? editProject : formData;
 
+  // ---------------------- SECTION HANDLERS ------------------------
+
+  const openSectionModal = (projectId) => {
+    setCurrentProjectId(projectId);
+    setSectionData({ title: '', description: '', img: '' });
+    setShowSectionModal(true);
+  };
+
+  const handleAddSection = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch(`/api/project/${currentProjectId}/section`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(sectionData)
+    });
+
+    if (res.ok) {
+      setMessage('✅ Section added!');
+      setShowSectionModal(false);
+      fetchProjects();
+    } else {
+      setMessage('❌ Error adding section');
+    }
+  };
+
+  // -------------------------------------------------------------------
+
   return (
     <div className="container mx-auto p-4">
+
       <h1 className="text-2xl font-bold mb-4">
         {editMode ? 'Edit Project' : 'Add Project'}
       </h1>
 
-      <form onSubmit={editMode ? handleEditSubmit : handleSubmit} className="space-y-4 bg-gray-100 p-4 rounded">
-
-        {/* Title */}
+      {/* ADD/EDIT PROJECT FORM */}
+      <form
+        onSubmit={editMode ? handleEditSubmit : handleSubmit}
+        className="space-y-4 bg-gray-100 p-4 rounded"
+      >
         <div>
-          <label className="block mb-1 font-semibold">Title</label>
+          <label className="font-semibold">Title</label>
           <input
-            type="text"
             className="border p-2 w-full"
             value={currentForm.title}
             onChange={(e) => updateField('title', e.target.value)}
@@ -122,61 +149,138 @@ const ManageProject = () => {
           />
         </div>
 
-        {/* Description */}
         <div>
-          <label className="block mb-1 font-semibold">Description</label>
+          <label className="font-semibold">Description</label>
           <ReactQuill
             value={currentForm.description}
             onChange={(val) => updateField('description', val)}
-            theme="snow"
           />
         </div>
 
-        {/* Image Upload */}
         <div>
-          <label className="block mb-1 font-semibold">Upload Image</label>
+          <label className="font-semibold">Upload Image</label>
           <Upload onImagesUpload={(url) => updateField('img', url)} />
         </div>
 
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded">
           {editMode ? 'Update' : 'Add Project'}
         </button>
       </form>
 
-      {message && <p className="mt-4 text-blue-600">{message}</p>}
+      {message && <p className="text-blue-600 mt-4">{message}</p>}
 
-      {/* Projects List */}
+      {/* ===== PROJECT LIST ===== */}
       <h2 className="text-xl font-bold mt-8 mb-2">All Projects</h2>
+
       <table className="w-full border border-gray-300">
         <thead>
-          <tr className="bg-gray-100">
+          <tr className="bg-gray-200">
             <th className="border p-2">Title</th>
+            <th className="border p-2">Sections</th>
             <th className="border p-2">Actions</th>
           </tr>
         </thead>
+
         <tbody>
           {projects.length > 0 ? (
             projects.map((p) => (
-              <tr key={p._id}>
+              <tr key={p.id}>
                 <td className="border p-2">{p.title}</td>
 
+                {/* SECTIONS LIST */}
                 <td className="border p-2">
-                  <button onClick={() => handleEdit(p)} className="bg-yellow-500 text-white px-3 py-1 mr-2 rounded">
+                  {p.sections?.length > 0 ? (
+                    p.sections.map((s) => (
+                      <div key={s.id} className="text-sm border-b py-1">
+                        • {s.title}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-gray-500 text-sm">No sections</span>
+                  )}
+
+                  <button
+                    className="bg-green-600 text-white px-2 py-1 mt-2 text-sm rounded"
+                    onClick={() => openSectionModal(p.id)}
+                  >
+                    + Add Section
+                  </button>
+                </td>
+
+                {/* ACTION BUTTONS */}
+                <td className="border p-2">
+                  <button
+                    onClick={() => {
+                      setEditMode(true);
+                      setEditProject(p);
+                    }}
+                    className="bg-yellow-500 text-white px-3 py-1 mr-2 rounded"
+                  >
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(p.id)} className="bg-red-500 text-white px-3 py-1 rounded">
+
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="bg-red-500 text-white px-3 py-1 rounded"
+                  >
                     Delete
                   </button>
                 </td>
               </tr>
             ))
           ) : (
-            <tr><td className="text-center p-4">No projects found.</td></tr>
+            <tr>
+              <td className="p-4 text-center">No projects found.</td>
+            </tr>
           )}
         </tbody>
       </table>
+
+      {/* ---------- SECTION MODAL ---------- */}
+      {showSectionModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded w-96">
+
+            <h2 className="font-bold text-xl mb-4">Add Sub-Section</h2>
+
+            <form onSubmit={handleAddSection} className="space-y-3">
+              <input
+                className="border p-2 w-full"
+                placeholder="Section Title"
+                value={sectionData.title}
+                onChange={(e) =>
+                  setSectionData({ ...sectionData, title: e.target.value })
+                }
+                required
+              />
+
+              <ReactQuill
+                value={sectionData.description}
+                onChange={(val) =>
+                  setSectionData({ ...sectionData, description: val })
+                }
+              />
+
+              <Upload
+                onImagesUpload={(url) =>
+                  setSectionData({ ...sectionData, img: url })
+                }
+              />
+
+              <button className="bg-green-600 text-white px-4 py-2 rounded w-full">
+                Add Section
+              </button>
+            </form>
+
+            <button
+              onClick={() => setShowSectionModal(false)}
+              className="mt-4 text-center w-full text-red-500"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default ManageProject;
+}

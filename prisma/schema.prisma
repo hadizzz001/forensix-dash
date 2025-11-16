@@ -8,12 +8,22 @@ datasource db {
 }
 
 model Project {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String  
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
   description String
-  img         String[]  
+  img         String[]
+  sections    Section[]
 }
- 
+
+type Section {
+  id          String
+  title       String
+  description String
+  img         String[]
+}
+
+
+
 
 model Blog {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -49,3 +59,38 @@ model Work {
 }
 
  
+
+
+ model Banner {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String 
+  description String 
+  img         String[]
+}
+
+ model About {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String 
+  img         String[]
+}
+ model Look {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String 
+  img         String[]
+}
+ model Why {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String 
+  data Json
+}
+
+
+ model Hwork {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String  
+  data Json
+}

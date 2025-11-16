@@ -42,6 +42,31 @@ export default function Sidebar() {
               </a>
             </li>
             <li>
+              <a href="/banner" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Banner
+              </a>
+            </li>
+            <li>
+              <a href="/about" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                About
+              </a>
+            </li>
+            <li>
+              <a href="/hwork" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                How it work section
+              </a>
+            </li>
+            <li>
+              <a href="/look" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Section under services
+              </a>
+            </li>
+            <li>
+              <a href="/why" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Why choose us section
+              </a>
+            </li>
+            <li>
               <a href="/reservation" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 Reservations
               </a>
