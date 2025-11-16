@@ -3,98 +3,70 @@
 import { useState, useEffect } from 'react';
 import Upload from '../components/Upload';
 
+const FIXED_ID = "691a1d078d3c196ccc9f78c3";
+
 const ManageProject = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    data: [], // <-- ARRAY OF {title, img}
-  });
-
   const [editFormData, setEditFormData] = useState({
-    id: '',
+    id: FIXED_ID,
     title: '',
     description: '',
-    data: [], // <-- ARRAY OF {title, img}
+    data: [],
   });
 
-  const [newItem, setNewItem] = useState({ title: '', img: '' }); // temp input for each item
+  const [newItem, setNewItem] = useState({ title: '', img: '' });
   const [message, setMessage] = useState('');
-  const [projects, setProjects] = useState([]);
-  const [editMode, setEditMode] = useState(false);
 
-  const fetchProjects = async () => {
+  const loadFixedItem = async () => {
     try {
-      const res = await fetch('/api/why');
+      const res = await fetch(`/api/why/${FIXED_ID}`);
       if (res.ok) {
         const data = await res.json();
-        setProjects(data);
-      } else {
-        console.error('Failed to fetch projects');
+        setEditFormData({
+          id: FIXED_ID,
+          title: data.title || '',
+          description: data.description || '',
+          data: data.data || [],
+        });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error loading data:", error);
     }
   };
 
   useEffect(() => {
-    fetchProjects();
+    loadFixedItem();
   }, []);
 
   const addItemToData = () => {
-    if (!newItem.title || !newItem.img) return alert("Title & Image required");
+    if (!newItem.title || !newItem.img) {
+      alert("Title & Image required");
+      return;
+    }
 
-    const updated = [...currentForm.data, newItem];
-
-    updateField('data', updated);
+    const updated = [...editFormData.data, newItem];
+    setEditFormData({ ...editFormData, data: updated });
     setNewItem({ title: '', img: '' });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch('/api/why', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    if (res.ok) {
-      setMessage('why added successfully!');
-      setFormData({
-        title: '',
-        description: '',
-        data: [],
-      });
-      window.location.href = '/why';
-    } else {
-      const errorData = await res.json();
-      setMessage(`Error: ${errorData.error}`);
-    }
-  };
-
-  const handleEdit = (project) => {
-    setEditMode(true);
-    setEditFormData({ ...project });
+  // ✅ NEW: Remove item from data list
+  const removeItemFromData = (index) => {
+    const updated = editFormData.data.filter((_, i) => i !== index);
+    setEditFormData({ ...editFormData, data: updated });
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await fetch(`/api/why/${encodeURIComponent(editFormData.id)}`, {
+      const res = await fetch(`/api/why/${FIXED_ID}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editFormData),
       });
 
       if (res.ok) {
-        setMessage('why updated!');
-        setEditMode(false);
-        setEditFormData({
-          id: '',
-          title: '',
-          description: '',
-          data: [],
-        });
-        window.location.href = '/why';
+        setMessage('Updated successfully!');
+        loadFixedItem();
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
@@ -104,47 +76,24 @@ const ManageProject = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this why?')) {
-      try {
-        const res = await fetch(`/api/why/${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-        });
-        if (res.ok) {
-          setMessage('why deleted!');
-          window.location.href = '/why';
-        } else {
-          const errorData = await res.json();
-          setMessage(`Error: ${errorData.error}`);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-  };
-
-  const currentForm = editMode ? editFormData : formData;
-
   const updateField = (field, value) => {
-    editMode
-      ? setEditFormData({ ...editFormData, [field]: value })
-      : setFormData({ ...formData, [field]: value });
+    setEditFormData({ ...editFormData, [field]: value });
   };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        {editMode ? 'Edit why' : 'Add why'}
-      </h1>
 
-      <form onSubmit={editMode ? handleEditSubmit : handleSubmit} className="space-y-4">
+      <h1 className="text-2xl font-bold mb-4">Edit why (Patch Only)</h1>
+
+      <form onSubmit={handleEditSubmit} className="space-y-4">
+
         {/* TITLE */}
         <div>
           <label className="block mb-1">Title</label>
           <input
             type="text"
             className="border p-2 w-full"
-            value={currentForm.title}
+            value={editFormData.title}
             onChange={(e) => updateField('title', e.target.value)}
             required
           />
@@ -155,13 +104,13 @@ const ManageProject = () => {
           <label className="block mb-1">Description</label>
           <textarea
             className="border p-2 w-full h-40"
-            value={currentForm.description}
+            value={editFormData.description}
             onChange={(e) => updateField('description', e.target.value)}
             required
           ></textarea>
         </div>
 
-        {/* ADD MULTIPLE ITEMS */}
+        {/* ITEMS */}
         <div className="border p-4">
           <h3 className="font-bold mb-2">Add Item (title + img)</h3>
 
@@ -185,68 +134,32 @@ const ManageProject = () => {
             Add to list
           </button>
 
-          {/* Preview list */}
-          {currentForm.data.length > 0 && (
+          {/* PREVIEW WITH REMOVE BUTTON */}
+          {editFormData.data.length > 0 && (
             <ul className="mt-3 list-disc ml-5">
-              {currentForm.data.map((d, i) => (
-                <li key={i}>{d.title}</li>
+              {editFormData.data.map((d, i) => (
+                <li key={i} className="flex items-center justify-between">
+                  <span>{d.title}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeItemFromData(i)}
+                    className="ml-4 bg-red-500 text-white px-2 py-1 rounded text-sm"
+                  >
+                    Remove
+                  </button>
+                </li>
               ))}
             </ul>
           )}
         </div>
 
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          {editMode ? 'Update why' : 'Add why'}
+          Save Changes
         </button>
       </form>
 
       {message && <p className="mt-4 text-red-500">{message}</p>}
 
-      {/* TABLE */}
-      <h2 className="text-xl font-bold mt-8">All whys</h2>
-
-      <table className="table-auto w-full border mt-4">
-        <thead>
-          <tr>
-            <th className="border p-2">Title</th>
-            <th className="border p-2">Archive</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {projects.length > 0 ? (
-            projects.map((project) => (
-              <tr key={project.id}>
-                <td className="border p-2">{project.title}</td>
-                <td className="border p-2">
-                  {project.archive == null ? 'no' : project.archive}
-                </td>
-                <td className="border p-2 text-center">
-                  <button
-                    onClick={() => handleEdit(project)}
-                    className="bg-yellow-500 text-white px-3 py-1 mr-2 rounded"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(project.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={3} className="text-center p-4">
-                No whys found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
     </div>
   );
 };
