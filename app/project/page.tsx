@@ -61,6 +61,24 @@ export default function ManageProject() {
     }
   };
 
+
+  // DELETE SUB-SECTION
+const handleDeleteSection = async (projectId, sectionId) => {
+  if (!confirm("Delete this section?")) return;
+
+  const res = await fetch(`/api/project/${projectId}/section/${sectionId}`, {
+    method: "DELETE",
+  });
+
+  if (res.ok) {
+    setMessage("✅ Section removed!");
+    fetchProjects();
+  } else {
+    setMessage("❌ Error deleting section");
+  }
+};
+
+
   // Update project
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -107,23 +125,41 @@ export default function ManageProject() {
     setShowSectionModal(true);
   };
 
-  const handleAddSection = async (e) => {
-    e.preventDefault();
+const handleAddSection = async (e) => {
+  e.preventDefault();
 
-    const res = await fetch(`/api/project/${currentProjectId}/section`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sectionData)
-    });
+  // ----- VALIDATION -----
+  if (!sectionData.title.trim()) {
+    setMessage("❌ Sub-section title is missing");
+    return;
+  }
 
-    if (res.ok) {
-      setMessage('✅ Section added!');
-      setShowSectionModal(false);
-      fetchProjects();
-    } else {
-      setMessage('❌ Error adding section');
-    }
-  };
+  if (!sectionData.description || sectionData.description.trim() === "") {
+    setMessage("❌ Sub-section description is missing");
+    return;
+  }
+
+  if (!sectionData.img) {
+    setMessage("❌ Sub-section image is missing");
+    return;
+  }
+  // -----------------------
+
+  const res = await fetch(`/api/project/${currentProjectId}/section`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sectionData)
+  });
+
+  if (res.ok) {
+    setMessage('✅ Section added!');
+    setShowSectionModal(false);
+    fetchProjects();
+  } else {
+    setMessage('❌ Error adding section');
+  }
+};
+
 
   // -------------------------------------------------------------------
 
@@ -187,25 +223,32 @@ export default function ManageProject() {
               <tr key={p.id}>
                 <td className="border p-2">{p.title}</td>
 
-                {/* SECTIONS LIST */}
-                <td className="border p-2">
-                  {p.sections?.length > 0 ? (
-                    p.sections.map((s) => (
-                      <div key={s.id} className="text-sm border-b py-1">
-                        • {s.title}
-                      </div>
-                    ))
-                  ) : (
-                    <span className="text-gray-500 text-sm">No sections</span>
-                  )}
+<td className="border p-2">
+  {p.sections?.length > 0 ? (
+    p.sections.map((s) => (
+      <div key={s.id} className="flex items-center justify-between border-b py-1 text-sm">
+        <span>• {s.title}</span>
 
-                  <button
-                    className="bg-green-600 text-white px-2 py-1 mt-2 text-sm rounded"
-                    onClick={() => openSectionModal(p.id)}
-                  >
-                    + Add Section
-                  </button>
-                </td>
+        <button
+          onClick={() => handleDeleteSection(p.id, s.id)}
+          className="text-red-600 hover:underline text-xs"
+        >
+          Delete
+        </button>
+      </div>
+    ))
+  ) : (
+    <span className="text-gray-500 text-sm">No sections</span>
+  )}
+
+  <button
+    className="bg-green-600 text-white px-2 py-1 mt-2 text-sm rounded"
+    onClick={() => openSectionModal(p.id)}
+  >
+    + Add Section
+  </button>
+</td>
+
 
                 {/* ACTION BUTTONS */}
                 <td className="border p-2">
@@ -237,50 +280,56 @@ export default function ManageProject() {
       </table>
 
       {/* ---------- SECTION MODAL ---------- */}
-      {showSectionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded w-96">
+{showSectionModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+    <div className="bg-white p-6 rounded w-96 max-h-[80vh] overflow-y-auto">
 
-            <h2 className="font-bold text-xl mb-4">Add Sub-Section</h2>
+      <h2 className="font-bold text-xl mb-4">Add Sub-Section</h2>
 
-            <form onSubmit={handleAddSection} className="space-y-3">
-              <input
-                className="border p-2 w-full"
-                placeholder="Section Title"
-                value={sectionData.title}
-                onChange={(e) =>
-                  setSectionData({ ...sectionData, title: e.target.value })
-                }
-                required
-              />
+      <form onSubmit={handleAddSection} className="space-y-3">
+        <input
+          className="border p-2 w-full"
+          placeholder="Section Title"
+          value={sectionData.title}
+          onChange={(e) =>
+            setSectionData({ ...sectionData, title: e.target.value })
+          }
+          required
+        />
 
-              <ReactQuill
-                value={sectionData.description}
-                onChange={(val) =>
-                  setSectionData({ ...sectionData, description: val })
-                }
-              />
+        <ReactQuill
+          value={sectionData.description}
+          onChange={(val) =>
+            setSectionData({ ...sectionData, description: val })
+          }
+        />
 
-              <Upload
-                onImagesUpload={(url) =>
-                  setSectionData({ ...sectionData, img: url })
-                }
-              />
+        <Upload
+          onImagesUpload={(url) =>
+            setSectionData({ ...sectionData, img: url })
+          }
+        />
 
-              <button className="bg-green-600 text-white px-4 py-2 rounded w-full">
-                Add Section
-              </button>
-            </form>
+        <button className="bg-green-600 text-white px-4 py-2 rounded w-full">
+          Add Section
+        </button>
+      </form>
 
-            <button
-              onClick={() => setShowSectionModal(false)}
-              className="mt-4 text-center w-full text-red-500"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      {message && (
+  <p className="text-red-600 text-sm mb-2">{message}</p>
+)}
+
+
+      <button
+        onClick={() => setShowSectionModal(false)}
+        className="mt-4 text-center w-full text-red-500"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

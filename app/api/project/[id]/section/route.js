@@ -22,3 +22,21 @@ export async function POST(req, { params }) {
 
   return Response.json(updated);
 }
+
+
+
+
+export async function DELETE(req, { params }) {
+  const { projectId, sectionId } = params;
+
+  await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      sections: {
+        delete: { id: sectionId }
+      }
+    }
+  });
+
+  return Response.json({ success: true });
+}
