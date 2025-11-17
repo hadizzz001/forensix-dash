@@ -1,119 +1,155 @@
-'use client'; 
-import ExportButton from "../components/ExportExcel";
-import { useState, useEffect } from "react";
+"use client";
+import React, { useEffect, useState } from "react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const Page = () => {
-  const [allTemp, setTemp] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
   const [expandedRows, setExpandedRows] = useState<{ [key: string]: boolean }>({});
-  const [filterClientName, setFilterClientName] = useState("");
+  const [feedbacks, setFeedbacks] = useState<{ [key: string]: string }>({});
 
-  // Fetch API data from /api/work
+  // Fetch data
   useEffect(() => {
-    const fetchWorks = async () => {
-      const response = await fetch('/api/work');
-      if (response.ok) {
-        const data = await response.json();
-        setTemp(data);
-      } else {
-        console.error('Failed to fetch works');
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/work");
+        if (res.ok) {
+          const data = await res.json();
+          setApplications(data);
+        }
+      } catch (error) {
+        console.error(error);
       }
     };
-    fetchWorks();
+    fetchData();
   }, []);
 
-  // Toggle row expansion
   const toggleRow = (id: string) => {
     setExpandedRows((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Delete work entry
-  const handleDelete = async (id: string) => {
+  const handleFeedbackChange = (id: string, value: string) => {
+    setFeedbacks((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmitFeedback = async (id: string) => {
+    const feedback = feedbacks[id] || "";
     try {
-      const response = await fetch(`/api/work/${id}`, { method: "DELETE" });
-      if (response.ok) {
-        setTemp(allTemp.filter((item) => item.id !== id));
-      } else {
-        console.error("Failed to delete work entry");
+      const res = await fetch(`/api/work/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedback }),
+      });
+      if (res.ok) {
+        alert("Feedback submitted!");
+        setApplications((prev) =>
+          prev.map((app) =>
+            (app._id || app.id) === id
+              ? { ...app, data: { ...app.data, feedback } }
+              : app
+          )
+        );
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Filtered data by fullName
-  const filteredData = allTemp.filter((post) =>
-    filterClientName === "" || post.data.fullName.toLowerCase().includes(filterClientName.toLowerCase())
-  );
-
   return (
-    <>
-      {/* Right aligned filter + export */}
-      <div className="flex justify-end items-center mb-2 space-x-2 text-sm">
-        <input
-          type="text"
-          value={filterClientName}
-          onChange={(e) => setFilterClientName(e.target.value)}
-          placeholder="Filter by Name"
-          className="border p-1 text-xs"
-        /> 
-      </div>
-
-      <table className="table table-striped container text-sm">
-        <thead>
+    <div className="container mx-auto p-4 overflow-x-auto">
+      <table className="w-full bg-white text-black rounded-xl shadow-lg border border-gray-200">
+        <thead className="bg-[#0b2556] text-white">
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Date</th>
-            <th>Docs</th>
-            <th>Action</th>
+            <th className="p-3 text-left">Document</th>
+            <th className="p-3 text-left">Date</th>
+            <th className="p-3 text-center"> </th>
           </tr>
         </thead>
-        <tbody>
-          {filteredData.length > 0 ? (
-            filteredData.map((post) => (
-              <>
-                <tr key={post.id}>
-                  <td>{post.data.fullName}</td>
-                  <td>{post.data.email}</td>
-                  <td>{post.data.date}</td>
-                  <td>
-                    {post.data.cvUrl ? (
-                      <a
-                        href={post.data.cvUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="myGray  underline text-xs"
-                         
-                      >
-                        View Docs
-                      </a>
-                    ) : (
-                      "N/A"
-                    )}
-                  </td>
-                  <td className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleDelete(post.id)}
-                      className="bg-red-500 text-white p-1 text-xs"
-                    >
-                      Delete
-                    </button> 
-                  </td>
-                </tr>
 
-          
-              </>
-            ))
-          ) : (
+        <tbody>
+          {applications.length === 0 ? (
             <tr>
-              <td colSpan={4} className="text-center">
-                No matching records found.
+              <td colSpan={3} className="p-4 text-center text-gray-700">
+                No applications found.
               </td>
             </tr>
+          ) : (
+            applications.map((app, index) => {
+              // ✅ FIX: safe unique row ID
+              const rowId = app._id || app.id || index.toString();
+
+              const isExpanded = expandedRows[rowId];
+
+              return (
+                <React.Fragment key={rowId}>
+                  {/* MAIN ROW */}
+                  <tr
+                    className={`cursor-pointer transition-all ${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-200`}
+                    onClick={() => toggleRow(rowId)}
+                  >
+                    <td className="p-3 break-words">
+                      {app.data.cvUrl ? (
+                        <a
+                          href={app.data.cvUrl}
+                          target="_blank"
+                          className="text-black underline break-all"
+                        >
+                          View Document
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
+
+                    <td className="p-3">{app.data.date}</td>
+
+                    <td className="p-3 text-center">
+                      {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                    </td>
+                  </tr>
+
+{/* EXPANDED ROW */}
+{isExpanded && (
+  <tr
+    className="bg-gray-100 border-t border-gray-300"
+    onClick={(e) => e.stopPropagation()} // prevent toggle
+  >
+    <td colSpan={3} className="p-4 flex flex-col gap-3">
+      <p className="max-w-[80ch] break-words whitespace-pre-line">
+        <strong>Note:</strong> {app.data.note || "-"}
+      </p>
+
+      <div className="flex flex-col gap-1 max-w-[80ch]">
+        <label className="font-semibold">Feedback:</label>
+        <textarea
+          value={feedbacks[rowId] || app.data.feedback || ""}
+          onChange={(e) => handleFeedbackChange(rowId, e.target.value)}
+          className="border p-2 rounded w-full text-sm resize-y"
+          placeholder="Enter feedback"
+          rows={4} // default height
+        />
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSubmitFeedback(rowId);
+          }}
+          className="bg-green-500 text-white p-2 rounded w-32 text-sm mt-1"
+        >
+          Submit
+        </button>
+      </div>
+    </td>
+  </tr>
+)}
+
+                </React.Fragment>
+              );
+            })
           )}
         </tbody>
       </table>
-    </>
+    </div>
   );
 };
 
