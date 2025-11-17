@@ -48,10 +48,19 @@ const ManageAppointments = () => {
       return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      dates: [...prev.dates, { ...currentDate }],
-    }));
+setFormData((prev) => ({
+  ...prev,
+  dates: [
+    ...prev.dates,
+    {
+      date: `${currentDate.date.getFullYear()}-${String(
+        currentDate.date.getMonth() + 1
+      ).padStart(2, '0')}-${String(currentDate.date.getDate()).padStart(2, '0')}`,
+      hours: [...currentDate.hours],
+    },
+  ],
+}));
+
 
     setCurrentDate({ date: null, hours: [] });
   };
@@ -69,7 +78,7 @@ const ManageAppointments = () => {
 
     const payload = {
       dates: formData.dates.map((d) => ({
-        date: d.date,
+        date: d.date, // Already a string YYYY-MM-DD
         hours: d.hours.map((h) => ({ hour: h, booked: false })),
       })),
     };
@@ -157,7 +166,7 @@ const ManageAppointments = () => {
             <h3 className="font-semibold mb-2">Dates to be submitted:</h3>
             {formData.dates.map((d, i) => (
               <div key={i} className="mb-2 border p-2 rounded bg-gray-50">
-                <p><strong>{d.date.toLocaleDateString()}</strong></p>
+                <p><strong>{d.date}</strong></p>
                 <div className="flex flex-wrap gap-2">
                   {d.hours.map((h, idx) => (
                     <span key={idx} className="bg-green-200 px-2 py-1 rounded">{h}</span>
@@ -198,7 +207,7 @@ const ManageAppointments = () => {
               .flatMap((item, index) =>
                 item.info.dates.map((date, i) => (
                   <tr key={`${index}-${i}`}>
-                    <td className="border p-2">{new Date(date.date).toLocaleDateString()}</td>
+                    <td className="border p-2">{date.date}</td>
                     <td className="border p-2">
                       {date.hours.map((h, j) => (
                         <span
