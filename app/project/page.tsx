@@ -19,6 +19,12 @@ export default function ManageProject() {
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState('');
 
+  // -------- EDIT SUB-SECTION STATE --------
+const [editSectionMode, setEditSectionMode] = useState(false);
+const [editSectionProjectId, setEditSectionProjectId] = useState('');
+const [editSectionId, setEditSectionId] = useState('');
+
+
   // -------- SUB SECTION STATE --------
   const [showSectionModal, setShowSectionModal] = useState(false);
   const [currentProjectId, setCurrentProjectId] = useState('');
@@ -161,6 +167,41 @@ const handleAddSection = async (e) => {
 };
 
 
+
+const openEditSectionModal = (projectId, section) => {
+  setEditSectionMode(true);
+  setEditSectionProjectId(projectId);
+  setEditSectionId(section.id);
+  setSectionData({
+    title: section.title,
+    description: section.description,
+    img: section.img
+  });
+
+  setShowSectionModal(true);
+};
+
+
+const handleUpdateSection = async (e) => {
+  e.preventDefault();
+
+  const res = await fetch(`/api/project/${editSectionProjectId}/section/${editSectionId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sectionData),
+  });
+
+  if (res.ok) {
+    setMessage("✅ Section updated!");
+    setShowSectionModal(false);
+    setEditSectionMode(false);
+    fetchProjects();
+  } else {
+    setMessage("❌ Error updating section");
+  }
+};
+
+
   // -------------------------------------------------------------------
 
   return (
@@ -223,18 +264,28 @@ const handleAddSection = async (e) => {
               <tr key={p.id}>
                 <td className="border p-2">{p.title}</td>
 
+ 
 <td className="border p-2">
   {p.sections?.length > 0 ? (
     p.sections.map((s) => (
       <div key={s.id} className="flex items-center justify-between border-b py-1 text-sm">
         <span>• {s.title}</span>
 
-        <button
-          onClick={() => handleDeleteSection(p.id, s.id)}
-          className="text-red-600 hover:underline text-xs"
-        >
-          Delete
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => openEditSectionModal(p.id, s)}
+            className="text-blue-600 hover:underline text-xs"
+          >
+            Edit
+          </button>
+
+          <button
+            onClick={() => handleDeleteSection(p.id, s.id)}
+            className="text-red-600 hover:underline text-xs"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     ))
   ) : (
@@ -249,6 +300,9 @@ const handleAddSection = async (e) => {
   </button>
 </td>
 
+
+ 
+ 
 
                 {/* ACTION BUTTONS */}
                 <td className="border p-2">
@@ -284,9 +338,16 @@ const handleAddSection = async (e) => {
   <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
     <div className="bg-white p-6 rounded w-96 max-h-[80vh] overflow-y-auto">
 
-      <h2 className="font-bold text-xl mb-4">Add Sub-Section</h2>
+     <h2 className="font-bold text-xl mb-4">
+  {editSectionMode ? "Edit Sub-Section" : "Add Sub-Section"}
+</h2>
 
-      <form onSubmit={handleAddSection} className="space-y-3">
+
+      <form
+  onSubmit={editSectionMode ? handleUpdateSection : handleAddSection}
+  className="space-y-3"
+>
+
         <input
           className="border p-2 w-full"
           placeholder="Section Title"
@@ -310,9 +371,10 @@ const handleAddSection = async (e) => {
           }
         />
 
-        <button className="bg-green-600 text-white px-4 py-2 rounded w-full">
-          Add Section
-        </button>
+<button className="bg-green-600 text-white px-4 py-2 rounded w-full">
+  {editSectionMode ? "Update Section" : "Add Section"}
+</button>
+
       </form>
 
       {message && (

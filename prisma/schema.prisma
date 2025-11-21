@@ -108,3 +108,28 @@ model Appointment {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   info       Json  
 }
+
+
+
+
+
+ model Look1 {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String 
+  img         String[]
+}
+ model Why1 {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String 
+  data Json
+}
+
+
+ model Hwork1 {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String  
+  data Json
+}

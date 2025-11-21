@@ -67,6 +67,21 @@ export default function Sidebar() {
               </a>
             </li>
             <li>
+              <a href="/hwork1" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Mission
+              </a>
+            </li>
+            <li>
+              <a href="/look1" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Vision
+              </a>
+            </li>
+            <li>
+              <a href="/why1" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Values
+              </a>
+            </li>
+            <li>
               <a href="/reservation" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 Documents received
               </a>
