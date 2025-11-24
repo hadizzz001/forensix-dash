@@ -53,8 +53,7 @@ export async function DELETE(request, { params }) {
   try {
     // 1️⃣ Find the order
     const order = await prisma.order.findUnique({
-      where: { id },
-      select: { userInfo: true },
+      where: { id }, 
     });
 
     if (!order) {
