@@ -32,7 +32,7 @@ export default function ManageProject() {
 
   // Fill form when editing
   const startEdit = (item) => {
-    setEditingId(item._id);
+    setEditingId(item.id);
     setFormData({
       title: item.title,
       img: item.img,
@@ -135,7 +135,7 @@ export default function ManageProject() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {projects.map((item) => (
-          <div key={item._id} className="border p-3 rounded shadow">
+          <div key={item.id} className="border p-3 rounded shadow">
             <img src={item.img} className="w-full h-40 object-cover rounded" />
 
             <h3 className="font-semibold mt-2">{item.title}</h3>
@@ -150,7 +150,7 @@ export default function ManageProject() {
 
               <button
                 className="bg-red-600 text-white px-3 py-1 rounded"
-                onClick={() => deleteItem(item._id)}
+                onClick={() => deleteItem(item.id)}
               >
                 Delete
               </button>
