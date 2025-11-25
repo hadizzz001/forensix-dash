@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import Upload from '../components/Upload';
 
-const FIXED_ID = "692590ccfef5c0ab94997157";
+export default function ManageTeam() {
 
-const ManageProject = () => {
+  const [team, setTeam] = useState([]);        // List all team members
+  const [editingId, setEditingId] = useState(null); // ID of the item being edited
+
   const [formData, setFormData] = useState({
-    id: FIXED_ID,
     title: '',
     description: '',
     img: '',
@@ -15,60 +16,85 @@ const ManageProject = () => {
 
   const [message, setMessage] = useState('');
 
-  // Fetch only this one record
-  const fetchSingleProject = async () => {
+  // Fetch all team members
+  const fetchTeam = async () => {
     try {
-      const res = await fetch(`/api/team/${FIXED_ID}`);
-      if (res.ok) {
-        const data = await res.json();
-        setFormData({
-          id: FIXED_ID,
-          title: data.title || '',
-          description: data.description || '',
-          img: data.img || '',
-        });
-      } else {
-        console.error('Failed to fetch data');
-      }
-    } catch (error) {
-      console.error('Error:', error);
+      const res = await fetch('/api/team');
+      const data = await res.json();
+      setTeam(data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   useEffect(() => {
-    fetchSingleProject();
+    fetchTeam();
   }, []);
 
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
+  // When clicking edit
+  const startEdit = (item) => {
+    setEditingId(item._id);
+    setFormData({
+      title: item.title,
+      description: item.description,
+      img: item.img,
+    });
+  };
+
+  // Delete item
+  const deleteItem = async (id) => {
+    if (!confirm("Delete this team member?")) return;
+
     try {
-      const res = await fetch(`/api/team/${FIXED_ID}`, {
-        method: 'PATCH',
+      const res = await fetch(`/api/team/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setMessage("Deleted successfully");
+        fetchTeam();
+      } else {
+        setMessage("Delete failed");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Handle add/update
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const url = editingId ? `/api/team/${editingId}` : `/api/team`;
+    const method = editingId ? 'PATCH' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
-        setMessage('Updated successfully!');
+        setMessage(editingId ? "Updated successfully!" : "Created successfully!");
+        setFormData({ title: '', description: '', img: '' });
+        setEditingId(null);
+        fetchTeam();
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      console.error(err);
     }
-  };
-
-  const updateField = (field, value) => {
-    setFormData({ ...formData, [field]: value });
   };
 
   return (
     <div className="container mx-auto p-4">
 
-      <h1 className="text-2xl font-bold mb-4">Edit Vision</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        {editingId ? "Edit Team Member" : "Add Team Member"}
+      </h1>
 
-      <form onSubmit={handleEditSubmit} className="space-y-4">
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="space-y-4">
 
         {/* TITLE */}
         <div>
@@ -77,7 +103,7 @@ const ManageProject = () => {
             type="text"
             className="border p-2 w-full"
             value={formData.title}
-            onChange={(e) => updateField('title', e.target.value)}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
             required
           />
         </div>
@@ -88,7 +114,7 @@ const ManageProject = () => {
           <textarea
             className="border p-2 w-full h-40"
             value={formData.description}
-            onChange={(e) => updateField('description', e.target.value)}
+            onChange={(e) => setFormData({...formData, description: e.target.value})}
             required
           ></textarea>
         </div>
@@ -96,17 +122,59 @@ const ManageProject = () => {
         {/* IMAGE UPLOAD */}
         <div>
           <label className="block mb-1">Upload Image</label>
-          <Upload onImagesUpload={(url) => updateField('img', url)} />
+          <Upload onImagesUpload={(url) => setFormData({...formData, img: url})} />
         </div>
 
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          Update Vision
+          {editingId ? "Update" : "Create"}
         </button>
+
+        {editingId && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditingId(null);
+              setFormData({ title: '', description: '', img: '' });
+            }}
+            className="ml-3 bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Cancel Edit
+          </button>
+        )}
       </form>
 
       {message && <p className="mt-4 text-green-600">{message}</p>}
+
+      {/* LIST ALL TEAM MEMBERS */}
+      <h2 className="text-xl font-bold mt-8 mb-4">Team List</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {team.map((item) => (
+          <div key={item._id} className="border p-3 rounded shadow">
+            <img src={item.img} className="w-full h-40 object-cover rounded" />
+
+            <h3 className="font-semibold mt-2">{item.title}</h3>
+            <p className="text-sm mt-1">{item.description}</p>
+
+            <div className="flex gap-2 mt-3">
+              <button
+                className="bg-yellow-500 text-white px-3 py-1 rounded"
+                onClick={() => startEdit(item)}
+              >
+                Edit
+              </button>
+
+              <button
+                className="bg-red-600 text-white px-3 py-1 rounded"
+                onClick={() => deleteItem(item._id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
-};
-
-export default ManageProject;
+}
