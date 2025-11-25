@@ -49,7 +49,7 @@ export default function ManageTeam() {
       const res = await fetch(`/api/team/${id}`, { method: "DELETE" });
       if (res.ok) {
         setMessage("Deleted successfully");
-        fetchTeam();
+        window.location.replace("/team");
       } else {
         setMessage("Delete failed");
       }
@@ -76,7 +76,7 @@ export default function ManageTeam() {
         setMessage(editingId ? "Updated successfully!" : "Created successfully!");
         setFormData({ title: '', description: '', img: '' });
         setEditingId(null);
-        fetchTeam();
+        window.location.replace("/project");
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
@@ -98,7 +98,7 @@ export default function ManageTeam() {
 
         {/* TITLE */}
         <div>
-          <label className="block mb-1">Title</label>
+          <label className="block mb-1">Name</label>
           <input
             type="text"
             className="border p-2 w-full"

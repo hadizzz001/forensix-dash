@@ -47,7 +47,7 @@ export default function ManageProject() {
       const res = await fetch(`/api/part/${id}`, { method: "DELETE" });
       if (res.ok) {
         setMessage("Deleted successfully");
-        fetchProjects();
+        window.location.replace("/part");
       } else {
         setMessage("Delete failed");
       }
@@ -74,7 +74,7 @@ export default function ManageProject() {
         setMessage(editingId ? "Updated successfully!" : "Created successfully!");
         setFormData({ title: '', img: '' });
         setEditingId(null);
-        fetchProjects();
+        window.location.replace("/part");
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
@@ -88,14 +88,14 @@ export default function ManageProject() {
     <div className="container mx-auto p-4">
 
       <h1 className="text-2xl font-bold mb-4">
-        {editingId ? "Edit Project" : "Add Project"}
+        {editingId ? "Edit Client" : "Add Client"}
       </h1>
 
       {/* FORM */}
       <form onSubmit={handleSubmit} className="space-y-4">
 
         <div>
-          <label className="block mb-1">Title</label>
+          <label className="block mb-1">Name</label>
           <input
             type="text"
             className="border p-2 w-full"
@@ -131,7 +131,7 @@ export default function ManageProject() {
       {message && <p className="mt-4 text-green-600">{message}</p>}
 
       {/* LIST ALL PROJECTS */}
-      <h2 className="text-xl font-bold mt-8 mb-4">All Projects</h2>
+      <h2 className="text-xl font-bold mt-8 mb-4">All Clients</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {projects.map((item) => (
