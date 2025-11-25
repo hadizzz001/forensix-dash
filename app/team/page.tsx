@@ -76,7 +76,7 @@ export default function ManageTeam() {
         setMessage(editingId ? "Updated successfully!" : "Created successfully!");
         setFormData({ title: '', description: '', img: '' });
         setEditingId(null);
-        window.location.replace("/project");
+        window.location.replace("/team");
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
