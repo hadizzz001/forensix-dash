@@ -133,3 +133,19 @@ model Appointment {
   description String  
   data Json
 }
+
+
+
+ model Team {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String 
+  img         String[]
+}
+
+
+ model Part {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  img         String[]
+}

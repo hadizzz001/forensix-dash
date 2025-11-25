@@ -82,6 +82,16 @@ export default function Sidebar() {
               </a>
             </li>
             <li>
+              <a href="/team" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Team
+              </a>
+            </li>
+            <li>
+              <a href="/part" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Clients
+              </a>
+            </li>
+            <li>
               <a href="/reservation" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 Documents received
               </a>
