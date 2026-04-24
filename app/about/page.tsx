@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import Upload from '../components/Upload';
 
-const ALLOWED_ID = "6919f3cba4938d48e0349fa2";
-
 const ManageProject = () => {
   const [editFormData, setEditFormData] = useState({
     id: '',
@@ -24,12 +22,9 @@ const ManageProject = () => {
         const data = await res.json();
         setProjects(data);
 
-        // Load ONLY the allowed ID into form
-        const allowed = data.find((p) => p.id === ALLOWED_ID);
-        if (allowed) {
-          setEditFormData(allowed);
-        } else {
-          setMessage("The allowed ABOUT section was not found.");
+        const firstItem = Array.isArray(data) && data.length > 0 ? data[0] : null;
+        if (firstItem) {
+          setEditFormData(firstItem);
         }
       } else {
         console.error('Failed to fetch');
@@ -43,17 +38,16 @@ const ManageProject = () => {
     fetchProjects();
   }, []);
 
-  // PATCH ONLY THIS ID
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
-    if (editFormData.id !== ALLOWED_ID) {
-      setMessage("You are NOT allowed to edit this record.");
+    if (!editFormData.id) {
+      setMessage('No record found to update.');
       return;
     }
 
     try {
-      const res = await fetch(`/api/about/${ALLOWED_ID}`, {
+      const res = await fetch(`/api/about/${editFormData.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editFormData),
@@ -61,7 +55,7 @@ const ManageProject = () => {
 
       if (res.ok) {
         setMessage('ABOUT section updated successfully!');
-        window.location.href = '/about';
+        fetchProjects();
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
@@ -79,7 +73,6 @@ const ManageProject = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Edit About Page Content</h1>
 
-      {/* Only Edit Form */}
       <form onSubmit={handleEditSubmit} className="space-y-4">
         {/* Title */}
         <div>

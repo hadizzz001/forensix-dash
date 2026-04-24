@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import Upload from '../components/Upload';
 
-const FIXED_ID = "691a1ab18d3c196ccc9f78b5";
-
 const ManageProject = () => {
   const [editFormData, setEditFormData] = useState({
-    id: FIXED_ID,
+    id: '',
     title: '',
     description: '',
     data: [],
@@ -16,17 +14,21 @@ const ManageProject = () => {
   const [newItem, setNewItem] = useState({ title: '', img: '' });
   const [message, setMessage] = useState('');
 
-  const loadFixedItem = async () => {
+  const loadItem = async () => {
     try {
-      const res = await fetch(`/api/hwork/${FIXED_ID}`);
+      const res = await fetch('/api/hwork');
       if (res.ok) {
         const data = await res.json();
-        setEditFormData({
-          id: FIXED_ID,
-          title: data.title || '',
-          description: data.description || '',
-          data: data.data || [],
-        });
+        const firstItem = Array.isArray(data) && data.length > 0 ? data[0] : null;
+
+        if (firstItem) {
+          setEditFormData({
+            id: firstItem.id || '',
+            title: firstItem.title || '',
+            description: firstItem.description || '',
+            data: firstItem.data || [],
+          });
+        }
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -34,7 +36,7 @@ const ManageProject = () => {
   };
 
   useEffect(() => {
-    loadFixedItem();
+    loadItem();
   }, []);
 
   const addItemToData = () => {
@@ -57,8 +59,13 @@ const ManageProject = () => {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
+    if (!editFormData.id) {
+      setMessage('No record found to update.');
+      return;
+    }
+
     try {
-      const res = await fetch(`/api/hwork/${FIXED_ID}`, {
+      const res = await fetch(`/api/hwork/${editFormData.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editFormData),
@@ -66,7 +73,7 @@ const ManageProject = () => {
 
       if (res.ok) {
         setMessage('Updated successfully!');
-        loadFixedItem();
+        loadItem();
       } else {
         const errorData = await res.json();
         setMessage(`Error: ${errorData.error}`);
@@ -83,7 +90,7 @@ const ManageProject = () => {
   return (
     <div className="container mx-auto p-4">
 
-      <h1 className="text-2xl font-bold mb-4">Edit hwork (Patch Only)</h1>
+      <h1 className="text-2xl font-bold mb-4">Manage hwork</h1>
 
       <form onSubmit={handleEditSubmit} className="space-y-4">
 

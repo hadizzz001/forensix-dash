@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import Upload from '../components/Upload';
 
-const FIXED_ID = "691a1c128d3c196ccc9f78be";
-
 const ManageProject = () => {
   const [formData, setFormData] = useState({
-    id: FIXED_ID,
+    id: '',
     title: '',
     description: '',
     img: '',
@@ -15,18 +13,21 @@ const ManageProject = () => {
 
   const [message, setMessage] = useState('');
 
-  // Fetch only this one record
   const fetchSingleProject = async () => {
     try {
-      const res = await fetch(`/api/look/${FIXED_ID}`);
+      const res = await fetch('/api/look');
       if (res.ok) {
         const data = await res.json();
-        setFormData({
-          id: FIXED_ID,
-          title: data.title || '',
-          description: data.description || '',
-          img: data.img || '',
-        });
+        const firstItem = Array.isArray(data) && data.length > 0 ? data[0] : null;
+
+        if (firstItem) {
+          setFormData({
+            id: firstItem.id || '',
+            title: firstItem.title || '',
+            description: firstItem.description || '',
+            img: firstItem.img || '',
+          });
+        }
       } else {
         console.error('Failed to fetch data');
       }
@@ -41,8 +42,14 @@ const ManageProject = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.id) {
+      setMessage('No record found to update.');
+      return;
+    }
+
     try {
-      const res = await fetch(`/api/look/${FIXED_ID}`, {
+      const res = await fetch(`/api/look/${formData.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
