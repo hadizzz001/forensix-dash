@@ -11,7 +11,7 @@ const ManageProject = () => {
     data: [],
   });
 
-  const [newItem, setNewItem] = useState({ title: '', img: '' });
+  const [newItem, setNewItem] = useState({ title: '', img: [] });
   const [message, setMessage] = useState('');
 
   const loadItem = async () => {
@@ -39,21 +39,46 @@ const ManageProject = () => {
     loadItem();
   }, []);
 
+  const getUploadedImage = (url) => Array.isArray(url) ? url[0] : url;
+  const getUploadedImageArray = (url) => {
+    const image = getUploadedImage(url);
+
+    return image ? [image] : [];
+  };
+  const getItemImage = (img) => Array.isArray(img) ? img[0] : img;
+  const hasItemImage = (img) => Boolean(getItemImage(img));
+
   const addItemToData = () => {
-    if (!newItem.title || !newItem.img) {
+    if (!newItem.title || !hasItemImage(newItem.img)) {
       alert("Title & Image required");
       return;
     }
 
     const updated = [...editFormData.data, newItem];
     setEditFormData({ ...editFormData, data: updated });
-    setNewItem({ title: '', img: '' });
+    setNewItem({ title: '', img: [] });
   };
 
   // ✅ NEW: Remove item from data list
   const removeItemFromData = (index) => {
     const updated = editFormData.data.filter((_, i) => i !== index);
     setEditFormData({ ...editFormData, data: updated });
+  };
+
+  const updateDataItem = (index, field, value) => {
+    const updated = editFormData.data.map((item, i) => (
+      i === index ? { ...item, [field]: value } : item
+    ));
+
+    setEditFormData({ ...editFormData, data: updated });
+  };
+
+  const updateDataItemImage = (index, url) => {
+    const image = getUploadedImageArray(url);
+
+    if (image.length > 0) {
+      updateDataItem(index, 'img', image);
+    }
   };
 
   const handleEditSubmit = async (e) => {
@@ -130,7 +155,8 @@ const ManageProject = () => {
           />
 
           <Upload
-            onImagesUpload={(url) => setNewItem({ ...newItem, img: url })}
+            onImagesUpload={(url) => setNewItem({ ...newItem, img: getUploadedImageArray(url) })}
+            multiple={false}
           />
 
           <button
@@ -141,22 +167,39 @@ const ManageProject = () => {
             Add to list
           </button>
 
-          {/* PREVIEW WITH REMOVE BUTTON */}
+          {/* EDIT ITEMS */}
           {editFormData.data.length > 0 && (
-            <ul className="mt-3 list-disc ml-5">
+            <div className="mt-4 space-y-4">
               {editFormData.data.map((d, i) => (
-                <li key={i} className="flex items-center justify-between">
-                  <span>{d.title}</span>
+                <div key={i} className="border rounded p-3">
+                  <label className="block mb-1 font-semibold">Item {i + 1} Title</label>
+                  <input
+                    type="text"
+                    className="border p-2 w-full mb-2"
+                    value={d.title || ''}
+                    onChange={(e) => updateDataItem(i, 'title', e.target.value)}
+                  />
+
+                  {hasItemImage(d.img) && (
+                    <img src={getItemImage(d.img)} alt={d.title || `Item ${i + 1}`} className="w-28 h-20 object-cover rounded mb-2" />
+                  )}
+
+                  <Upload
+                    onImagesUpload={(url) => updateDataItemImage(i, url)}
+                    multiple={false}
+                    label="Update Item Image"
+                  />
+
                   <button
                     type="button"
                     onClick={() => removeItemFromData(i)}
-                    className="ml-4 bg-red-500 text-white px-2 py-1 rounded text-sm"
+                    className="bg-red-500 text-white px-2 py-1 rounded text-sm"
                   >
                     Remove
                   </button>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 

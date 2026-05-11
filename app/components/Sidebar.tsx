@@ -52,6 +52,11 @@ export default function Sidebar() {
               </a>
             </li>
             <li>
+              <a href="/about-banner" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                About Banner
+              </a>
+            </li>
+            <li>
               <a href="/hwork" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 How it work section
               </a>

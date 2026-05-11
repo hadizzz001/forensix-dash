@@ -75,6 +75,11 @@ model Work {
   description String 
   img         String[]
 }
+
+ model AboutBanner {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  img         String
+}
  model Look {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String

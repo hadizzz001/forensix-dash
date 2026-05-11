@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const Upload = ({ onImagesUpload }) => {
+const Upload = ({ onImagesUpload, multiple = true, label = "Upload Images" }) => {
   const [images, setImages] = useState([]); // Array of uploaded image URLs
   const [loading, setLoading] = useState(false);
 
@@ -39,17 +39,19 @@ const Upload = ({ onImagesUpload }) => {
       }
     }
 
+    const nextImages = multiple ? uploadedImages : uploadedImages.slice(0, 1);
+
     // Update state with new images
-    setImages((prevImages) => [...prevImages, ...uploadedImages]);
+    setImages((prevImages) => multiple ? [...prevImages, ...nextImages] : nextImages);
     // Pass uploaded image URLs back to parent component
-    if (onImagesUpload) onImagesUpload(uploadedImages);
+    if (onImagesUpload) onImagesUpload(nextImages);
     setLoading(false);
   };
 
   return (
     <div className="mb-4">
-      <label className="block mb-1 font-bold">Upload Images</label>
-      <input type="file" multiple onChange={handleImagesChange} className="border p-2 w-full" />
+      <label className="block mb-1 font-bold">{label}</label>
+      <input type="file" multiple={multiple} onChange={handleImagesChange} className="border p-2 w-full" />
       {loading && <p>Uploading...</p>}
       <div className="mt-2 flex flex-wrap gap-2">
         {images.map((imgUrl, index) => (
