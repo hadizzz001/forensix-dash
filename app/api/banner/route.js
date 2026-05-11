@@ -18,12 +18,12 @@ export async function OPTIONS() {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const {  title, description, img } = body;
+    const {  title, description, img, mobileImg } = body;
 
     console.log("body are: ", body);
 
     const product = await prisma.banner.create({
-      data: {  title, description, img },
+      data: {  title, description, img, mobileImg: Array.isArray(mobileImg) ? mobileImg : [] },
     });
 
     return new Response(JSON.stringify({ message: 'Product created successfully', product }), {

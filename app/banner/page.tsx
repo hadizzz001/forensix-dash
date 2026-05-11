@@ -8,6 +8,7 @@ const ManageProject = () => {
     title: '',
     description: '',
     img: '',
+    mobileImg: [],
   });
 
   const [editFormData, setEditFormData] = useState({
@@ -15,6 +16,7 @@ const ManageProject = () => {
     title: '',
     description: '',
     img: '',
+    mobileImg: [],
   });
 
   const [message, setMessage] = useState('');
@@ -53,6 +55,7 @@ const ManageProject = () => {
         title: '',
         description: '',
         img: '',
+        mobileImg: [],
       });
       window.location.href = '/banner';
     } else {
@@ -83,6 +86,7 @@ const ManageProject = () => {
           title: '',
           description: '',
           img: '',
+          mobileImg: [],
         });
         window.location.href = '/banner';
       } else {
@@ -152,8 +156,14 @@ const ManageProject = () => {
 
         {/* Upload Image */}
         <div>
-          <label className="block mb-1">Upload Image</label>
+          <label className="block mb-1">Upload Image (1280 × 800 px for PC)</label>
           <Upload onImagesUpload={(url) => updateField('img', url)} />
+        </div>
+
+        {/* Upload Mobile Image */}
+        <div>
+          <label className="block mb-1">Upload Mobile Image (400 × 850 px for Mobile)</label>
+          <Upload onImagesUpload={(url) => updateField('mobileImg', url)} />
         </div>
 
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">

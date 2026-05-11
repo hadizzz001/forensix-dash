@@ -67,6 +67,7 @@ model Work {
   title       String 
   description String 
   img         String[]
+  mobileImg   String[] @default([])
 }
 
  model About {

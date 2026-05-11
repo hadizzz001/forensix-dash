@@ -58,12 +58,12 @@ export async function GET(request, { params }) {
 // Update Blog API
 export async function PATCH(request, { params }) {
   const { id } = params;
-  const {  title, description, img } = await request.json();
+  const {  title, description, img, mobileImg } = await request.json();
 
   try {
     const updatedProduct = await prisma.banner.update({
       where: { id },
-      data: {  title, description, img },
+      data: {  title, description, img, mobileImg: Array.isArray(mobileImg) ? mobileImg : [] },
     });
 
     return new Response(JSON.stringify(updatedProduct), {
