@@ -8,7 +8,7 @@ export async function OPTIONS() {
     status: 204,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
         status: 404,
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+          "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
       });
@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
       status: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
@@ -48,7 +48,7 @@ export async function GET(request, { params }) {
       status: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
@@ -70,7 +70,7 @@ export async function PATCH(request, { params }) {
       status: 200,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
@@ -80,37 +80,10 @@ export async function PATCH(request, { params }) {
       status: 500,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
   }
 }
 
-// Delete Blog API
-export async function DELETE(request, { params }) {
-  const { id } = params;
-
-  try {
-    await prisma.banner.delete({ where: { id } });
-
-    return new Response(JSON.stringify({ message: 'Blog deleted successfully' }), {
-      status: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
-  } catch (error) {
-    console.error('Error deleting blog:', error);
-    return new Response(JSON.stringify({ error: 'Failed to delete blog' }), {
-      status: 500,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
-  }
-}

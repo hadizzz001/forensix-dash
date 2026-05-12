@@ -8,45 +8,10 @@ export async function OPTIONS() {
     status: 204,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
-}
-
-// Create Product API
-export async function POST(req) {
-  try {
-    const body = await req.json();
-    const {  title, description, img, mobileImg } = body;
-
-    console.log("body are: ", body);
-
-    const product = await prisma.banner.create({
-      data: {  title, description, img, mobileImg: Array.isArray(mobileImg) ? mobileImg : [] },
-    });
-
-    return new Response(JSON.stringify({ message: 'Product created successfully', product }), {
-      status: 201,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
-  } catch (error) {
-    console.error('Error creating product:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create product' }), {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    });
-  }
 }
 
 // Get Products API
@@ -59,7 +24,7 @@ export async function GET(req) {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });
@@ -70,7 +35,7 @@ export async function GET(req) {
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     });

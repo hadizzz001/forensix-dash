@@ -4,13 +4,6 @@ import { useState, useEffect } from 'react';
 import Upload from '../components/Upload';
 
 const ManageProject = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    img: '',
-    mobileImg: [],
-  });
-
   const [editFormData, setEditFormData] = useState({
     id: '',
     title: '',
@@ -21,7 +14,6 @@ const ManageProject = () => {
 
   const [message, setMessage] = useState('');
   const [projects, setProjects] = useState([]);
-  const [editMode, setEditMode] = useState(false);
 
   const fetchProjects = async () => {
     try {
@@ -41,32 +33,11 @@ const ManageProject = () => {
     fetchProjects();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch('/api/banner', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    if (res.ok) {
-      setMessage('banner added successfully!');
-      setFormData({
-        title: '',
-        description: '',
-        img: '',
-        mobileImg: [],
-      });
-      window.location.href = '/banner';
-    } else {
-      const errorData = await res.json();
-      setMessage(`Error: ${errorData.error}`);
-    }
-  };
-
   const handleEdit = (project) => {
-    setEditMode(true);
-    setEditFormData({ ...project });
+    setEditFormData({
+      ...project,
+      mobileImg: Array.isArray(project.mobileImg) ? project.mobileImg : [],
+    });
   };
 
   const handleEditSubmit = async (e) => {
@@ -80,7 +51,6 @@ const ManageProject = () => {
 
       if (res.ok) {
         setMessage('banner updated!');
-        setEditMode(false);
         setEditFormData({
           id: '',
           title: '',
@@ -98,78 +68,59 @@ const ManageProject = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (confirm('Are you sure you want to delete this banner?')) {
-      try {
-        const res = await fetch(`/api/banner/${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-        });
-        if (res.ok) {
-          setMessage('banner deleted!');
-          window.location.href = '/banner';
-        } else {
-          const errorData = await res.json();
-          setMessage(`Error: ${errorData.error}`);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-  };
-
-  const currentForm = editMode ? editFormData : formData;
+  const currentForm = editFormData;
   const updateField = (field, value) => {
-    editMode
-      ? setEditFormData({ ...editFormData, [field]: value })
-      : setFormData({ ...formData, [field]: value });
+    setEditFormData({ ...editFormData, [field]: value });
   };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        {editMode ? 'Edit banner' : 'Add banner'}
-      </h1>
+      <h1 className="text-2xl font-bold mb-4">Edit banner</h1>
 
-      <form onSubmit={editMode ? handleEditSubmit : handleSubmit} className="space-y-4">
-        {/* TITLE */}
-        <div>
-          <label className="block mb-1">Title</label>
-          <input
-            type="text"
-            className="border p-2 w-full"
-            value={currentForm.title}
-            onChange={(e) => updateField('title', e.target.value)}
-            required
-          />
-        </div>
+      {currentForm.id ? (
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          {/* TITLE */}
+          <div>
+            <label className="block mb-1">Title</label>
+            <input
+              type="text"
+              className="border p-2 w-full"
+              value={currentForm.title}
+              onChange={(e) => updateField('title', e.target.value)}
+              required
+            />
+          </div>
 
-        {/* NORMAL TEXTBOX DESCRIPTION */}
-        <div>
-          <label className="block mb-1">Description</label>
-          <textarea
-            className="border p-2 w-full h-40"
-            value={currentForm.description}
-            onChange={(e) => updateField('description', e.target.value)}
-            required
-          ></textarea>
-        </div>
+          {/* NORMAL TEXTBOX DESCRIPTION */}
+          <div>
+            <label className="block mb-1">Description</label>
+            <textarea
+              className="border p-2 w-full h-40"
+              value={currentForm.description}
+              onChange={(e) => updateField('description', e.target.value)}
+              required
+            ></textarea>
+          </div>
 
-        {/* Upload Image */}
-        <div>
-          <label className="block mb-1">Upload Image (1280 × 800 px for PC)</label>
-          <Upload onImagesUpload={(url) => updateField('img', url)} />
-        </div>
+          {/* Upload Image */}
+          <div>
+            <label className="block mb-1">Upload Image (1280 × 800 px for PC)</label>
+            <Upload onImagesUpload={(url) => updateField('img', url)} />
+          </div>
 
-        {/* Upload Mobile Image */}
-        <div>
-          <label className="block mb-1">Upload Mobile Image (400 × 850 px for Mobile)</label>
-          <Upload onImagesUpload={(url) => updateField('mobileImg', url)} />
-        </div>
+          {/* Upload Mobile Image */}
+          <div>
+            <label className="block mb-1">Upload Mobile Image (400 × 850 px for Mobile)</label>
+            <Upload onImagesUpload={(url) => updateField('mobileImg', url)} />
+          </div>
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          {editMode ? 'Update banner' : 'Add banner'}
-        </button>
-      </form>
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+            Update banner
+          </button>
+        </form>
+      ) : (
+        <p className="text-gray-600">Select a banner from the list below to edit it.</p>
+      )}
 
       {message && <p className="mt-4 text-red-500">{message}</p>}
 
@@ -202,12 +153,6 @@ const ManageProject = () => {
                     className="bg-yellow-500 text-white px-3 py-1 mr-2 rounded"
                   >
                     Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(project.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    Delete
                   </button>
                 </td>
               </tr>
