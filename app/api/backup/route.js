@@ -13,6 +13,7 @@ const collections = [
   ['banner', prisma.banner],
   ['about', prisma.about],
   ['aboutBanner', prisma.aboutBanner],
+  ['pageBanner', prisma.pageBanner],
   ['look', prisma.look],
   ['why', prisma.why],
   ['hwork', prisma.hwork],

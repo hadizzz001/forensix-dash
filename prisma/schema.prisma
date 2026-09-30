@@ -81,6 +81,12 @@ model Work {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   img         String
 }
+
+ model PageBanner {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  page        String   @unique
+  img         String
+}
  model Look {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String

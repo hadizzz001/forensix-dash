@@ -43,17 +43,17 @@ export default function Sidebar() {
             </li>
             <li>
               <a href="/banner" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
-                Banner
+                Home Banner
+              </a>
+            </li>
+            <li>
+              <a href="/page-banners" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
+                Page Banners
               </a>
             </li>
             <li>
               <a href="/about" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
                 About
-              </a>
-            </li>
-            <li>
-              <a href="/about-banner" style={{ color: "white", textDecoration: "none", whiteSpace: "nowrap" }}>
-                About Banner
               </a>
             </li>
             <li>
